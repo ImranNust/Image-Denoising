@@ -12,10 +12,10 @@ noiselevel = 50;
 patch_size_v = 256;
 stride_v = 256;
 
-data = zeros(patch_size, patch_size, 3, 522, 'single');
-label = zeros(patch_size, patch_size, 3, 522, 'single');
-data_val = zeros(patch_size_v, patch_size_v, 3, 5, 'single');
-label_val = zeros(patch_size_v, patch_size_v, 3, 5, 'single');
+data = zeros(patch_size, patch_size, 3, 522939, 'single');
+label = zeros(patch_size, patch_size, 3, 522939, 'single');
+data_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
+label_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
 
 count = 0;
 count1 = 0;
@@ -25,12 +25,12 @@ list_origin = dir(train_folder_origin);
 n = length(list_origin);
 
 %% generate data
-for i = 3 : 4
+for i = 3 : n
     file_origin = strcat(train_folder_origin, '\', list_origin(i).name);    
     
     origin = imread(file_origin);    
     origin = single(origin)/255;
-    [hei, wid, c] = size(origin);    
+    [hei, wid, ~] = size(origin);    
     
     for x = 1  : stride : hei-patch_size+1
         for y = 1  :stride : wid-patch_size+1
@@ -38,7 +38,7 @@ for i = 3 : 4
             count=count+1;
             subim_origin = origin(x : x+patch_size-1, y : y+patch_size-1, :);
             if glob
-                subim_noisy = subim_origin + 5*randi(10)/255*randn(size(subim_origin));
+%                 subim_noisy = subim_origin + 5*randi(10)/255*randn(size(subim_origin));
             else
                 subim_noisy = subim_origin + noiselevel/255*randn(size(subim_origin));
             end            
@@ -65,7 +65,7 @@ for x = 1  : stride_v : hei-patch_size_v+1
         count1=count1+1;
         subim_origin = origin(x : x+patch_size_v-1, y : y+patch_size_v-1, :);
         if glob
-            subim_noisy = subim_origin + 5*randi(10)/255*randn(size(subim_origin));
+%             subim_noisy = subim_origin + 5*randi(10)/255*randn(size(subim_origin));
         else
             subim_noisy = subim_origin + noiselevel/255*randn(size(subim_origin));
         end
