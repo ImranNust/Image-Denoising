@@ -53,7 +53,7 @@ def Up(x, channel_in):
     out = tf.nn.depth_to_space(out, block_size=2)
     return out
 
-def model_creattion(input_shape = (64, 64, 3)):
+def model_creation(input_shape = (64, 64, 3)):
     inputs = Input(shape=input_shape)
     out = Conv2D(filters=128,
                  kernel_size=1,

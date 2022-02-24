@@ -2,6 +2,9 @@ import argparse, os, random, h5py, time, math
 
 import numpy as np
 
+from DHDN
+
+
 parser = argparse.ArgumentParser(description="PyTorch Densely Connected Hierarchical Network for Image Denoising")
 parser.add_argument("--batchSize", type=int, default=16, help="Training batch size. Default: 16")
 parser.add_argument("--nEpochs", type=int, default=100, help="Number of epochs to train for. Default: 100")
