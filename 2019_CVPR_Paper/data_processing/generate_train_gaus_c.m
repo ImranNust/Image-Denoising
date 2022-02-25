@@ -2,8 +2,8 @@
 %% Train Set
 train_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_train_HR';
 val_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_valid_HR';
-savepath = 'gaus_train_c_50.h5';
-savepath_val = 'gaus_val_c_50.h5';
+savepath = 'gaus_train_c_50_toy.h5';
+savepath_val = 'gaus_val_c_50_toy.h5';
 
 patch_size = 64;
 stride = 64;
@@ -12,8 +12,8 @@ noiselevel = 50;
 patch_size_v = 256;
 stride_v = 256;
 
-data = zeros(patch_size, patch_size, 3, 522939, 'single');
-label = zeros(patch_size, patch_size, 3, 522939, 'single');
+data = zeros(patch_size, patch_size, 3, 522, 'single');
+label = zeros(patch_size, patch_size, 3, 52, 'single');
 data_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
 label_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
 
