@@ -9,11 +9,11 @@ patch_size = 64;
 stride = 64;
 noiselevel = 50;
 
-patch_size_v = 256;
-stride_v = 256;
+patch_size_v = 64;
+stride_v = 64;
 
-data = zeros(patch_size, patch_size, 3, 522, 'single');
-label = zeros(patch_size, patch_size, 3, 52, 'single');
+data = zeros(patch_size, patch_size, 3, 100, 'single');
+label = zeros(patch_size, patch_size, 3, 100, 'single');
 data_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
 label_val = zeros(patch_size_v, patch_size_v, 3, 50, 'single');
 
