@@ -28,3 +28,4 @@ model.png
 gaus_train_c_50_toy.h5
 gaus_val_c_50_toy.h5
 data/
+*.asv
