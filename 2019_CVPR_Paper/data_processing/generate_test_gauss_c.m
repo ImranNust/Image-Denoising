@@ -35,3 +35,7 @@ end
 % Clipping the values between 0 and 1
 data_val(data_val<0)=0;
 data_val(data_val>1)=1;
+
+% saving the data
+save(kodak_GD, 'label_val');
+save(kodak_noisy, 'data_val');
