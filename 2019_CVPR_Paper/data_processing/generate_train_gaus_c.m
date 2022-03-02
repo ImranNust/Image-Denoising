@@ -2,12 +2,12 @@
 %% Train Set
 train_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_train_HR';
 val_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_valid_HR';
-savepath = 'gaus_train_c_50.h5';
-savepath_val = 'gaus_val_c_50.h5';
+savepath = 'gaus_train_c_30.h5';
+savepath_val = 'gaus_val_c_30.h5';
 
 patch_size = 64;
 stride = 64;
-noiselevel = 50;
+noiselevel = 30;
 
 patch_size_v = 64;
 stride_v = 64;
