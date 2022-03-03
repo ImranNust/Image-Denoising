@@ -20,7 +20,7 @@ parser.add_argument("--batchSize", type=int, default=16, help="Training batch si
 parser.add_argument("--nEpochs", type=int, default=100, help="Number of epochs to train for. Default: 100")
 parser.add_argument("--lr", type=float, default=1e-4, help="Learning Rate. Default=1e-4")
 parser.add_argument("--resume", default="", type=str, help="Path to checkpoint for resume. Default: None")
-parser.add_argument("--epochs", default=1, type=int, help="Number of epochs for training. Default: 1")
+parser.add_argument("--epochs", default=10, type=int, help="Number of epochs for training. Default: 1")
 parser.add_argument("--momentum", default=0.9, type=float, help="Momentum, Default: 0.9")
 parser.add_argument("--weight-decay", "--wd", default=1e-4, type=float, help="weight decay, Default: 1e-4")
 parser.add_argument("--pretrained", default="", type=str, help="path to pretrained model. Default: None")
@@ -130,6 +130,6 @@ def test():
                   'ssim':np.array(ssim)}).to_csv(results_path+'/metrics.csv', index=True)
     
 if __name__ == "__main__":
-    # train()
+    train()
     test()
     
