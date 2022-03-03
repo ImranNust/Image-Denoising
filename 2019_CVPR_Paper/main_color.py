@@ -1,7 +1,16 @@
 import argparse, os, random, h5py, time, math
 import tensorflow as tf
 import numpy as np
-
+import glob
+import scipy.io as sio
+from skimage import io
+from skimage.transform import resize
+from skimage import metrics
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from skimage.transform import resize
+from PIL import Image
+import pandas as pd
 
 from DHDN import DHDN_color
 
@@ -17,17 +26,22 @@ parser.add_argument("--weight-decay", "--wd", default=1e-4, type=float, help="we
 parser.add_argument("--pretrained", default="", type=str, help="path to pretrained model. Default: None")
 parser.add_argument("--train", default="./data_processing/gaus_train_c_50_toy.h5", type=str, help="training set path.")
 parser.add_argument("--valid", default="./data_processing/gaus_val_c_50_toy.h5", type=str, help="validation set path.")
+parser.add_argument("--test", default= '../../data/test_data/' , type=str, help="path of the test dir")
+parser.add_argument("--test_data_type", default = 'kodak', type = str, 
+                   help = "We are testing our model on two types of data: kodak and BSDS300")
+parser.add_argument("--result_path", default = '../Results', type = str, help = "Path where results will be stored.")
 parser.add_argument("--gpu", default='0', help="GPU number to use when training. ex) 0,1 Default: 0")
 parser.add_argument('--input_shape', nargs = '+', default=[64, 64, 3], type=int, help='the size of the input image') 
 parser.add_argument('--model_save_path', default = "./saved_models/", type = str, help = 'Path for saving the model.' )
 parser.add_argument('--NL', default = 50, type = int, help = 'Noise level: like 30 or 10 or 50' )
 
-def main():
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-    global opt, model
+opt = parser.parse_args()
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+print(opt)
+
+def train():
     
-    opt = parser.parse_args()
-    print(opt)
+    global opt, model
     
     opt.seed = random.randint(1, 10000)
     print("Random Seed: ", opt.seed)
@@ -61,10 +75,28 @@ def main():
                                                         save_best_only = True,
                                                         save_weights_only = False,
                                                         save_freq = 'epoch')
-    model.fit(x = input_train, y = label_train, 
-              validation_data = (input_valid, label_valid),
-              batch_size = opt.batchSize,
-              epochs = opt.epochs, shuffle = True, callbacks = [save_model_callback])
+    history = model.fit(x = input_train, y = label_train, 
+                        validation_data = (input_valid, label_valid),
+                        batch_size = opt.batchSize,
+                        epochs = opt.epochs, 
+                        shuffle = True, 
+                        callbacks = [save_model_callback])
+    
+    return history
+    
+    
+def test():
+    print('\nStarting the Test... for Noise Level: {}\n'.format(opt.NL))
+    path = opt.model_save_path + 'Model_for_NL_' + str(opt.NL)
+    test_dir_path =  opt.test + opt.test_data_type
+    results_path = opt.result_path  + 'NL_'+ str(opt.NL) + '/'
+    print('Loading the Model for NL {} ...\n'.format(opt.NL))
+    model = tf.keras.models.load_model(path)
+    print('Model for NL {} is LOADED SUCCESSFULLY...\n'.format(opt.NL))
+    
+    
     
 if __name__ == "__main__":
-    main()
+    # train()
+    test()
+    
