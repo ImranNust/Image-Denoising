@@ -15,24 +15,24 @@ import pandas as pd
 from DHDN import DHDN_color
 
 
-parser = argparse.ArgumentParser(description="PyTorch Densely Connected Hierarchical Network for Image Denoising")
+parser = argparse.ArgumentParser(
+    description="PyTorch Densely Connected Hierarchical Network for Image Denoising")
 parser.add_argument("--batchSize", type=int, default=16, help="Training batch size. Default: 16")
-parser.add_argument("--nEpochs", type=int, default=100, help="Number of epochs to train for. Default: 100")
 parser.add_argument("--lr", type=float, default=1e-4, help="Learning Rate. Default=1e-4")
 parser.add_argument("--step", type=int, default=3,
                     help="Halves the learning rate for every n epochs. Default: n=3")
-parser.add_argument("--resume", default="", type=str, help="Path to checkpoint for resume. Default: None")
-parser.add_argument("--epochs", default=100, type=int, help="Number of epochs for training. Default: 1")
+parser.add_argument("--resume", default="", type=str, 
+                    help="Path to checkpoint for resume. Default: None")
+parser.add_argument("--epochs", default=1, type=int, help="Number of epochs for training. Default: 1")
 parser.add_argument("--momentum", default=0.9, type=float, help="Momentum, Default: 0.9")
 parser.add_argument("--weight-decay", "--wd", default=1e-4, type=float, help="weight decay, Default: 1e-4")
-parser.add_argument("--pretrained", default="", type=str, help="path to pretrained model. Default: None")
-parser.add_argument("--train", default="./data_processing/gaus_train_c_50.h5", type=str, 
+parser.add_argument("--pretrained", default="", type=str, 
+                    help="path to pretrained model. Default: None")
+parser.add_argument("--train", default="./data_processing/gaus_train_c_10.h5", type=str, 
                     help="training set path.")
-parser.add_argument("--valid", default="./data_processing/gaus_val_c_50.h5", type=str, 
+parser.add_argument("--valid", default="./data_processing/gaus_val_c_10.h5", type=str, 
                     help="validation set path.")
-parser.add_argument("--test", default= '../data/test_data/' , type=str, help="path of the test dir")
-parser.add_argument("--test_data_type", default = 'kodak', type = str, 
-                   help = "We are testing our model on two types of data: kodak and BSDS300")
+
 parser.add_argument("--result_path", default = './Results/', type = str, 
                     help = "Path where results will be stored.")
 parser.add_argument("--gpu", default='0', help="GPU number to use when training. ex) 0,1 Default: 0")
@@ -41,11 +41,20 @@ parser.add_argument('--input_shape', nargs = '+', default=[64, 64, 3], type=int,
 parser.add_argument('--model_save_path', default = "./saved_models/", type = str, 
                     help = 'Path for saving the model.' )
 parser.add_argument('--NL', default = 50, type = int, help = 'Noise level: like 30 or 10 or 50' )
+parser.add_argument('--only_test', default=False, type=bool, 
+                    help='If you have trained your model, and you want to test it on test images, then keep this parameter TRUE.')
+parser.add_argument('--plot_loss', default=True, type = bool, 
+                    help = "If you want to see loss vs epochs then keep it True; otherwise, false.")
 
+######################################################################################################
 opt = parser.parse_args()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 print(opt)
 
+######################################################################################################
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 def adjust_learning_rate(epoch):
     lr = opt.lr
@@ -53,7 +62,7 @@ def adjust_learning_rate(epoch):
         lr = lr / 2
     return lr
 
-
+######################################################################################################
 def train():
     
     global opt, model
@@ -67,7 +76,7 @@ def train():
                   loss = tf.keras.losses.MeanAbsoluteError())
     
     print('Reading and Preparing the Training Data...\n')
-    f = h5py.File(opt.valid, 'r')
+    f = h5py.File(opt.train, 'r')
     input_train = f['data'][...].transpose(0,2,3,1)
     label_train = f['label'][...].transpose(0,2,3,1)
     f.close()
@@ -100,12 +109,12 @@ def train():
     
     return history
     
-    
-def test():
+######################################################################################################   
+def test(test_data_dir, test_data_type):
     print('\nStarting the Test... for Noise Level: {}\n'.format(opt.NL))
     path = opt.model_save_path + 'Model_for_NL_' + str(opt.NL)
-    test_dir_path =  opt.test + opt.test_data_type
-    results_path = opt.result_path  + 'NL_'+ str(opt.NL) + '/'
+    test_dir_path =  test_data_dir + test_data_type
+    results_path = opt.result_path + test_data_type + 'NL_'+ str(opt.NL) + '/'
     if not os.path.exists(results_path):
         os.makedirs(results_path)
     print('Loading the Model for NL {} ...\n'.format(opt.NL))
@@ -128,7 +137,8 @@ def test():
         psnr_noise = metrics.peak_signal_noise_ratio(img, img_noisy[0], data_range=1)
         psnr_denoised = metrics.peak_signal_noise_ratio(img, img_predict[0], data_range=1)
         ssim_noise = metrics.structural_similarity(img, img_noisy[0], multichannel=True, data_range=1)
-        ssim_denoised = metrics.structural_similarity(img, img_predict[0], multichannel=True, data_range=1)
+        ssim_denoised = metrics.structural_similarity(img, img_predict[0], multichannel=True, 
+                                                      data_range=1)
         print('Processed Image {} .... '.format(img_num))
         psnr.append(psnr_denoised)
         ssim.append(ssim_denoised)
@@ -144,8 +154,40 @@ def test():
     print('Average PSNR = {0:.2f}, SSIM = {1:.2f}'.format(average_psnr, average_ssim))
     pd.DataFrame({'name':np.array(name), 'psnr':np.array(psnr), 
                   'ssim':np.array(ssim)}).to_csv(results_path+'/metrics.csv', index=True)
+
     
+######################################################################################################
+
+def plot_loss(history):
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+
+    plt.figure(figsize=(15,7))
+    plt.plot(loss, color =  'red', linewidth = 2, visible = True)
+    plt.plot(val_loss, color =  'blue', linewidth = 2, visible = True)
+    plt.grid(visible = True, which = 'both', color='green', ls = ':' )
+    plt.xticks(np.arange(0, len(loss),2), fontweight = 'bold',fontsize = 18, color = 'darkred')
+    plt.yticks(fontsize = 18, fontweight = 'bold',color = 'darkred')
+    plt.title('Loss vs Epochs', fontsize = 18, fontweight='bold', color='m')
+    plt.legend(['loss', 'val_loss'], fontsize = 18)
+    plt.show()
+
+######################################################################################################
 if __name__ == "__main__":
-    train()
-    test()
+    if not opt.only_test:
+        history = train()
+        if opt.plot_loss:
+            plot_loss(history)
+    else:
+        test_data_dir =  '../data/test_data/'
+        test_data_type = 'kodak'
+        print('Commencing the testing of {} dataset'.format(test_data_type))
+        test(test_data_dir, test_data_type)
+        print('\nTesting for {} dataset is completed succesfully...\n'.format(test_data_type))
+        test_data_type = 'BSDS300'
+        print('Commencing the testing of {} dataset'.format(test_data_type))
+        test(test_data_dir, test_data_type)
+        print('\nTesting for {} dataset is completed succesfully...\n'.format(test_data_type))
+    
+    
     
