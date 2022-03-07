@@ -23,9 +23,10 @@ parser.add_argument("--step", type=int, default=3,
                     help="Halves the learning rate for every n epochs. Default: n=3")
 parser.add_argument("--resume", default="", type=str, 
                     help="Path to checkpoint for resume. Default: None")
-parser.add_argument("--epochs", default=1, type=int, help="Number of epochs for training. Default: 1")
+parser.add_argument("--epochs", default=50, type=int, help="Number of epochs for training. Default: 1")
 parser.add_argument("--momentum", default=0.9, type=float, help="Momentum, Default: 0.9")
-parser.add_argument("--weight-decay", "--wd", default=1e-4, type=float, help="weight decay, Default: 1e-4")
+parser.add_argument("--weight-decay", "--wd", default=1e-4, type=float, 
+                    help="weight decay, Default: 1e-4")
 parser.add_argument("--pretrained", default="", type=str, 
                     help="path to pretrained model. Default: None")
 parser.add_argument("--train", default="./data_processing/gaus_train_c_10.h5", type=str, 
@@ -40,7 +41,7 @@ parser.add_argument('--input_shape', nargs = '+', default=[64, 64, 3], type=int,
                     help='the size of the input image') 
 parser.add_argument('--model_save_path', default = "./saved_models/", type = str, 
                     help = 'Path for saving the model.' )
-parser.add_argument('--NL', default = 50, type = int, help = 'Noise level: like 30 or 10 or 50' )
+parser.add_argument('--NL', default = 10, type = int, help = 'Noise level: like 30 or 10 or 50' )
 parser.add_argument('--only_test', default=False, type=bool, 
                     help='If you have trained your model, and you want to test it on test images, then keep this parameter TRUE.')
 parser.add_argument('--plot_loss', default=True, type = bool, 
@@ -100,12 +101,15 @@ def train():
                                                         save_weights_only = False,
                                                         save_freq = 'epoch')
     lr_callback = tf.keras.callbacks.LearningRateScheduler(adjust_learning_rate)
+    earlystop_callback = tf.keras.callbacks.EarlyStopping(monitor = 'val_loss',
+                                                         patience = 10,
+                                                         verbose = 1)
     history = model.fit(x = input_train, y = label_train, 
                         validation_data = (input_valid, label_valid),
                         batch_size = opt.batchSize,
                         epochs = opt.epochs, 
                         shuffle = True, 
-                        callbacks = [save_model_callback, lr_callback])
+                        callbacks = [save_model_callback, lr_callback, earlystop_callback])
     
     return history
     
@@ -187,7 +191,4 @@ if __name__ == "__main__":
         test_data_type = 'BSDS300'
         print('Commencing the testing of {} dataset'.format(test_data_type))
         test(test_data_dir, test_data_type)
-        print('\nTesting for {} dataset is completed succesfully...\n'.format(test_data_type))
-    
-    
-    
+        print('\nTesting for {} dataset is completed succesfully...\n'.format(test_data_type))  
