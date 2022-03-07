@@ -2,20 +2,24 @@
 %% Train Set
 train_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_train_HR';
 val_folder_origin = 'C:\Users\Imran Qureshi\Desktop\DeepLearning\ImageDenoising\data\DIV2K\DIV2K_valid_HR';
-savepath = 'gaus_train_c_30.h5';
-savepath_val = 'gaus_val_c_30.h5';
+savepath = 'gaus_train_128imagesize_c_50.h5';
+savepath_val = 'gaus_val_128imagesize_c_50.h5';
 
-patch_size = 64;
-stride = 64;
-noiselevel = 30;
+patch_size = 128;
+stride = 128;
+noiselevel = 50;
 
-patch_size_v = 64;
-stride_v = 64;
+patch_size_v = 128;
+stride_v = 128;
 
-data = zeros(patch_size, patch_size, 3, 25000, 'single');
-label = zeros(patch_size, patch_size, 3, 25000, 'single');
-data_val = zeros(patch_size_v, patch_size_v, 3, 1500, 'single');
-label_val = zeros(patch_size_v, patch_size_v, 3, 1500, 'single');
+% Number of images you want to retain for training
+train_imgs = 25000;
+valid_imgs = 1504;
+
+data = zeros(patch_size, patch_size, 3, train_imgs, 'single');
+label = zeros(patch_size, patch_size, 3, train_imgs, 'single');
+data_val = zeros(patch_size_v, patch_size_v, 3, valid_imgs, 'single');
+label_val = zeros(patch_size_v, patch_size_v, 3, valid_imgs, 'single');
 
 count = 0;
 count1 = 0;
@@ -74,15 +78,15 @@ for x = 1  : stride_v : hei-patch_size_v+1
     end
 end
 
-data = data(:,:,:,1:count);
-label = label(:,:,:,1:count);
-data_val = data_val(:,:,:,1:count1);
-label_val = label_val(:,:,:,1:count1);
+data = data(:,:,:,1:train_imgs);
+label = label(:,:,:,1:train_imgs);
+data_val = data_val(:,:,:,1:valid_imgs);
+label_val = label_val(:,:,:,1:valid_imgs);
 
-order = randperm(count);
+order = randperm(train_imgs);
 data = data(:, :, :, order);
 label = label(:, :, :, order);
-order = randperm(count1);
+order = randperm(valid_imgs);
 data_val = data_val(:, :, :, order);
 label_val = label_val(:, :, :, order);
 
@@ -95,7 +99,7 @@ chunksz = 16;
 created_flag = false;
 totalct = 0;
 
-for batchno = 1:floor(count/chunksz)
+for batchno = 1:floor(train_imgs/chunksz)
     batchno;
     last_read=(batchno-1)*chunksz;
     batchdata = data(:,:,:,last_read+1:last_read+chunksz); 
@@ -109,7 +113,7 @@ end
 h5disp(savepath);
 
 %% writing to HDF5 (Val.)
-chunksz = count1;
+chunksz = valid_imgs;
 created_flag = false;
 totalct = 0;
 
