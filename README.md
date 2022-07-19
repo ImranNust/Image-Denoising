@@ -15,10 +15,4 @@
 
 <hr>
 
-Our trained models can be downloaded and used from the following links.
-
-- [Model for NL 10](https://drive.google.com/drive/folders/12UYM5ShzBXVK1Zkp6iHEIFJpaUqOvGPr?usp=sharing)
-- [Model for NL 30](https://drive.google.com/drive/folders/12SwiUOl_0CCF2EoCKT7lKEm0Xj53J1je?usp=sharing)
-- [Model for NL 50](https://drive.google.com/drive/folders/12SYYbAgMy3gYegPkhq0SX4fyUzMqsmIi?usp=sharing)
-
-In addition, the test datasets (Kodak and BSDS300) for noise levels 10, 30, and 50 can be downloaded from [here](https://drive.google.com/drive/folders/15YoIPAp4PGn-GxyEMIZCqKrHp7udr8ff?usp=sharing).
+Tthe test datasets (Kodak and BSDS300) for noise levels 10, 30, and 50 can be downloaded from [here](https://drive.google.com/drive/folders/15YoIPAp4PGn-GxyEMIZCqKrHp7udr8ff?usp=sharing).
